@@ -35,7 +35,7 @@ async function main() {
   }
 
   const client = createClient({
-    baseUrl: "https://api.vugolaai.com",
+    baseUrl: "https://www.vugolaai.com/api/v1",
     apiKey,
   });
   const rateLimiter = createRateLimiter({
@@ -56,7 +56,7 @@ async function main() {
   const server = new Server(
     {
       name: "vugola-mcp",
-      version: "1.1.1",
+      version: "1.1.2",
       title: "Vugola",
       icons: [
         {
