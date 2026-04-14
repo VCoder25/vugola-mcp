@@ -15,30 +15,20 @@ Let Claude (or any MCP-capable agent) clip videos, check your credits, and sched
 
 ## Install
 
-Drop one block into your agent's MCP config. Every block below pins to version `1.0.0` on purpose — always pin a specific version, never install "latest."
+### Claude Desktop (one command, auto-configures)
 
-### Claude Desktop
-
-Open `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows) and add:
-
-```json
-{
-  "mcpServers": {
-    "vugola": {
-      "command": "npx",
-      "args": ["-y", "vugola-mcp@1.0.0"],
-      "env": { "VUGOLA_API_KEY": "vug_sk_your_key_here" }
-    }
-  }
-}
+```bash
+npx -y vugola-mcp@1.1.0 install
 ```
 
-Restart Claude Desktop.
+You'll be prompted for your API key. It edits your Claude Desktop config for you — no JSON to hand-write. **Quit and reopen Claude Desktop** to pick up the change.
+
+To skip the prompt: `npx -y vugola-mcp@1.1.0 install --key vug_sk_yourkey`.
 
 ### Claude Code
 
 ```bash
-claude mcp add vugola -- npx -y vugola-mcp@1.0.0
+claude mcp add vugola -- npx -y vugola-mcp@1.1.0
 ```
 
 Then export your key in your shell or `.env`:
@@ -47,9 +37,23 @@ Then export your key in your shell or `.env`:
 export VUGOLA_API_KEY=vug_sk_your_key_here
 ```
 
-### Cursor / Cline
+### Cursor / Cline / manual
 
-Same JSON shape as Claude Desktop. Paste the block above into each client's MCP config file.
+If your MCP client isn't covered above, drop this block into its config file:
+
+```json
+{
+  "mcpServers": {
+    "vugola": {
+      "command": "npx",
+      "args": ["-y", "vugola-mcp@1.1.0"],
+      "env": { "VUGOLA_API_KEY": "vug_sk_your_key_here" }
+    }
+  }
+}
+```
+
+**Always pin the version** (`vugola-mcp@1.1.0`) — never install `latest`.
 
 ---
 
@@ -57,7 +61,7 @@ Same JSON shape as Claude Desktop. Paste the block above into each client's MCP 
 
 ### `clip_video`
 
-Start a clipping job. Takes 20–40 minutes. Vugola emails you when it's done.
+Start a clipping job. Takes 10–30 minutes. Vugola emails you when it's done.
 
 Inputs: `video_url`, `aspect_ratio` (`9:16` | `16:9` | `1:1`), `caption_style` (`none` | `highlighted` | `scale` | `minimalist` | `box`).
 

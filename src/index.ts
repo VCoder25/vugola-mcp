@@ -13,6 +13,7 @@ import { createClipVideoTool } from "./tools/clip-video.js";
 import { createGetClipStatusTool } from "./tools/get-clip-status.js";
 import { createGetUsageTool } from "./tools/get-usage.js";
 import { createSchedulePostTool } from "./tools/schedule-post.js";
+import { runInstall } from "./install.js";
 
 const MISSING_KEY_MSG =
   "Set VUGOLA_API_KEY in your MCP config. Get one at https://www.vugolaai.com/dashboard/api-key";
@@ -53,7 +54,17 @@ async function main() {
   const byName = new Map(tools.map((t) => [t.name, t]));
 
   const server = new Server(
-    { name: "vugola-mcp", version: "1.0.1" },
+    {
+      name: "vugola-mcp",
+      version: "1.1.0",
+      title: "Vugola",
+      icons: [
+        {
+          src: "https://www.vugolaai.com/favicon.ico",
+          mimeType: "image/x-icon",
+        },
+      ],
+    } as unknown as { name: string; version: string },
     { capabilities: { tools: {} } }
   );
 
@@ -109,7 +120,15 @@ async function main() {
   await server.connect(transport);
 }
 
-main().catch((err) => {
+async function entry() {
+  const args = process.argv.slice(2);
+  if (args[0] === "install") {
+    return runInstall(args.slice(1));
+  }
+  return main();
+}
+
+entry().catch((err) => {
   process.stderr.write(
     `[vugola-mcp] fatal error: ${err instanceof Error ? err.message : String(err)}\n`
   );
