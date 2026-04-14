@@ -56,7 +56,7 @@ async function main() {
   const server = new Server(
     {
       name: "vugola-mcp",
-      version: "1.1.0",
+      version: "1.1.1",
       title: "Vugola",
       icons: [
         {

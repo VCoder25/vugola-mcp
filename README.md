@@ -18,17 +18,17 @@ Let Claude (or any MCP-capable agent) clip videos, check your credits, and sched
 ### Claude Desktop (one command, auto-configures)
 
 ```bash
-npx -y vugola-mcp@1.1.0 install
+npx -y vugola-mcp-install@1.1.1
 ```
 
 You'll be prompted for your API key. It edits your Claude Desktop config for you — no JSON to hand-write. **Quit and reopen Claude Desktop** to pick up the change.
 
-To skip the prompt: `npx -y vugola-mcp@1.1.0 install --key vug_sk_yourkey`.
+To skip the prompt: `npx -y vugola-mcp-install@1.1.1 --key vug_sk_yourkey`.
 
 ### Claude Code
 
 ```bash
-claude mcp add vugola -- npx -y vugola-mcp@1.1.0
+claude mcp add vugola -- npx -y vugola-mcp@1.1.1
 ```
 
 Then export your key in your shell or `.env`:
@@ -46,7 +46,7 @@ If your MCP client isn't covered above, drop this block into its config file:
   "mcpServers": {
     "vugola": {
       "command": "npx",
-      "args": ["-y", "vugola-mcp@1.1.0"],
+      "args": ["-y", "vugola-mcp@1.1.1"],
       "env": { "VUGOLA_API_KEY": "vug_sk_your_key_here" }
     }
   }
