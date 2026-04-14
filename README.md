@@ -18,12 +18,12 @@ Let Claude (or any MCP-capable agent) clip videos, check your credits, and sched
 ### Claude Desktop (one command, auto-configures)
 
 ```bash
-npx -y vugola-mcp-install@1.1.1
+npx vugola-mcp@1.1.1 install
 ```
 
-You'll be prompted for your API key. It edits your Claude Desktop config for you — no JSON to hand-write. **Quit and reopen Claude Desktop** to pick up the change.
+npx will ask to install the package (type `y`), then the installer prompts for your API key. It edits your Claude Desktop config for you — no JSON to hand-write. **Quit and reopen Claude Desktop** to pick up the change.
 
-To skip the prompt: `npx -y vugola-mcp-install@1.1.1 --key vug_sk_yourkey`.
+To skip the key prompt: `npx vugola-mcp@1.1.1 install --key vug_sk_yourkey`.
 
 ### Claude Code
 
