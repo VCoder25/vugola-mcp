@@ -27,6 +27,9 @@ export function createClient(cfg: ClientConfig): Client {
     path: string,
     opts: RequestOptions
   ): Promise<RequestResult> {
+    if (!cfg.apiKey) {
+      throw new Error("VUGOLA_API_KEY not set");
+    }
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), opts.timeoutMs);
     try {
