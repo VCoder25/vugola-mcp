@@ -1,0 +1,39 @@
+{
+  "name": "@vugola/mcp",
+  "version": "1.0.0",
+  "description": "Official MCP server for Vugola — AI video clipping for agents.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "vugola-mcp": "dist/index.js"
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke": "tsx scripts/test-client.ts",
+    "inject-probe": "tsx scripts/inject-probe.ts",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.4.0"
+  },
+  "keywords": ["mcp", "vugola", "video", "clipping", "ai", "agents"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VCoder25/vugola-mcp.git"
+  },
+  "license": "MIT"
+}
