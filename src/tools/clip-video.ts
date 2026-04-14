@@ -30,7 +30,7 @@ export function createClipVideoTool(deps: ToolDeps) {
   return {
     name: "clip_video",
     description:
-      "Start a video-clipping job. Ask the user for aspect_ratio and caption_style if they're not given. If the user says 'just pick,' default to aspect_ratio '9:16' and caption_style 'minimalist'. Videos must be 2–180 minutes long. Jobs take 20–40 minutes; Vugola will email the user when done, and the agent can check status via get_clip_status.",
+      "Start a video-clipping job. Ask the user for aspect_ratio and caption_style if they're not given. If the user says 'just pick,' default to aspect_ratio '9:16' and caption_style 'minimalist'. Videos must be 2–180 minutes long. Jobs take 10–30 minutes; Vugola will email the user when done, and the agent can check status via get_clip_status.",
     inputSchema: InputSchema,
     async handler(input: z.infer<typeof InputSchema>) {
       InputSchema.parse(input);
@@ -64,13 +64,13 @@ export function createClipVideoTool(deps: ToolDeps) {
         const payload = {
           job_id: jobId,
           status: "processing" as const,
-          estimated_minutes: 30,
+          estimated_minutes: 20,
           notification: {
             channel: "email" as const,
-            expected_within_minutes: 40,
+            expected_within_minutes: 30,
           },
           message:
-            "Job started. Vugola will email you when the clips are ready (usually 20-40 minutes). You can also ask me to check the status.",
+            "Job started. Vugola will email you when the clips are ready (usually 10-30 minutes). You can also ask me to check the status.",
           next_action_hint: `To check progress, call get_clip_status with job_id "${jobId}".`,
         };
         return {

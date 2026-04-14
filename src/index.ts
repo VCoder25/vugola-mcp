@@ -53,16 +53,25 @@ async function main() {
   const byName = new Map(tools.map((t) => [t.name, t]));
 
   const server = new Server(
-    { name: "vugola-mcp", version: "1.0.0" },
+    { name: "vugola-mcp", version: "1.0.1" },
     { capabilities: { tools: {} } }
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: tools.map((t) => ({
-      name: t.name,
-      description: t.description,
-      inputSchema: zodToJsonSchema(t.inputSchema) as Record<string, unknown>,
-    })),
+    tools: tools.map((t) => {
+      const withAnnotations = t as typeof t & {
+        annotations?: Record<string, unknown>;
+      };
+      const base: Record<string, unknown> = {
+        name: t.name,
+        description: t.description,
+        inputSchema: zodToJsonSchema(t.inputSchema) as Record<string, unknown>,
+      };
+      if (withAnnotations.annotations) {
+        base["annotations"] = withAnnotations.annotations;
+      }
+      return base;
+    }),
   }));
 
   server.setRequestHandler(CallToolRequestSchema, async (req) => {

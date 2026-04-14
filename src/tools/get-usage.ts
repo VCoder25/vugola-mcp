@@ -19,6 +19,11 @@ export function createGetUsageTool(deps: ToolDeps) {
     description:
       "Return how many credits the user has, their plan, and how many they've used this month.",
     inputSchema: InputSchema,
+    annotations: {
+      title: "Check Vugola credits",
+      readOnlyHint: true,
+      openWorldHint: true,
+    },
     async handler(_input: z.infer<typeof InputSchema>) {
       const rl = deps.rateLimiter.check("get_usage");
       if (!rl.allowed) {

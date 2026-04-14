@@ -37,7 +37,7 @@ describe("clip_video", () => {
     expect(parsed.estimated_minutes).toBeGreaterThan(0);
     expect(parsed.notification).toEqual({
       channel: "email",
-      expected_within_minutes: 40,
+      expected_within_minutes: 30,
     });
     expect(parsed.message).toMatch(/email/i);
     expect(parsed.next_action_hint).toMatch(/get_clip_status/);

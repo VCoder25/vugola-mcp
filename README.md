@@ -1,4 +1,4 @@
-# @vugola/mcp
+# vugola-mcp
 
 Official MCP server for [Vugola](https://www.vugolaai.com) — the AI video clipping tool.
 
@@ -26,7 +26,7 @@ Open `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   "mcpServers": {
     "vugola": {
       "command": "npx",
-      "args": ["-y", "@vugola/mcp@1.0.0"],
+      "args": ["-y", "vugola-mcp@1.0.0"],
       "env": { "VUGOLA_API_KEY": "vug_sk_your_key_here" }
     }
   }
@@ -38,7 +38,7 @@ Restart Claude Desktop.
 ### Claude Code
 
 ```bash
-claude mcp add vugola -- npx -y @vugola/mcp@1.0.0
+claude mcp add vugola -- npx -y vugola-mcp@1.0.0
 ```
 
 Then export your key in your shell or `.env`:
@@ -84,7 +84,7 @@ Inputs: `posts[]` (max 25 per call). See the tool description for full fields.
 ## Security
 
 - **Never commit your `VUGOLA_API_KEY`.** Your agent's config file contains a secret. Add it to `.gitignore`, or use a secrets manager (1Password CLI, direnv) instead of inline env vars.
-- **Always pin the version** (`@vugola/mcp@1.0.0`) in your install. Don't install "latest."
+- **Always pin the version** (`vugola-mcp@1.0.0`) in your install. Don't install "latest."
 - If you accidentally leak your key, regenerate it at [vugolaai.com/dashboard/api-key](https://www.vugolaai.com/dashboard/api-key) immediately.
 - Download URLs returned by `get_clip_status` require the same `Authorization: Bearer <key>` header and expire in ~1 hour. Save clips promptly or re-fetch the status before downloading.
 

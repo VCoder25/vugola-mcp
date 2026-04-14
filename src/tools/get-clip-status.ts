@@ -27,6 +27,11 @@ export function createGetClipStatusTool(deps: ToolDeps) {
     description:
       "Check whether a clipping job is done. Call this when the user asks about a job they've already started.",
     inputSchema: InputSchema,
+    annotations: {
+      title: "Check clip job status",
+      readOnlyHint: true,
+      openWorldHint: true,
+    },
     async handler(input: z.infer<typeof InputSchema>) {
       InputSchema.parse(input);
       const rl = deps.rateLimiter.check("get_clip_status");
