@@ -7,7 +7,11 @@
   "bin": {
     "vugola-mcp": "dist/index.js"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
@@ -22,7 +26,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "zod": "^3.23.0"
+    "zod": "^3.23.0",
+    "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
@@ -30,7 +35,14 @@
     "typescript": "^5.4.0",
     "vitest": "^1.4.0"
   },
-  "keywords": ["mcp", "vugola", "video", "clipping", "ai", "agents"],
+  "keywords": [
+    "mcp",
+    "vugola",
+    "video",
+    "clipping",
+    "ai",
+    "agents"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/VCoder25/vugola-mcp.git"
