@@ -13,7 +13,12 @@ import { createClipVideoTool } from "./tools/clip-video.js";
 import { createGetClipStatusTool } from "./tools/get-clip-status.js";
 import { createGetUsageTool } from "./tools/get-usage.js";
 import { createSchedulePostTool } from "./tools/schedule-post.js";
+import { createListScheduledPostsTool } from "./tools/list-scheduled-posts.js";
+import { createCancelScheduledPostTool } from "./tools/cancel-scheduled-post.js";
+import { createDownloadClipTool } from "./tools/download-clip.js";
 import { runInstall } from "./install.js";
+
+const VUGOLA_BASE_URL = "https://www.vugolaai.com/api/v1";
 
 const MISSING_KEY_MSG =
   "Set VUGOLA_API_KEY in your MCP config. Get one at https://www.vugolaai.com/dashboard/api-key";
@@ -35,7 +40,7 @@ async function main() {
   }
 
   const client = createClient({
-    baseUrl: "https://www.vugolaai.com/api/v1",
+    baseUrl: VUGOLA_BASE_URL,
     apiKey,
   });
   const rateLimiter = createRateLimiter({
@@ -43,6 +48,9 @@ async function main() {
     schedule_post: { max: 10, windowMs: 60_000 },
     get_clip_status: { max: 30, windowMs: 60_000 },
     get_usage: { max: 30, windowMs: 60_000 },
+    list_scheduled_posts: { max: 30, windowMs: 60_000 },
+    cancel_scheduled_post: { max: 10, windowMs: 60_000 },
+    download_clip: { max: 10, windowMs: 60_000 },
   });
 
   const tools = [
@@ -50,13 +58,20 @@ async function main() {
     createGetClipStatusTool({ client, rateLimiter }),
     createGetUsageTool({ client, rateLimiter }),
     createSchedulePostTool({ client, rateLimiter }),
+    createListScheduledPostsTool({ client, rateLimiter }),
+    createCancelScheduledPostTool({ client, rateLimiter }),
+    createDownloadClipTool({
+      apiKey,
+      rateLimiter,
+      baseUrl: VUGOLA_BASE_URL,
+    }),
   ];
   const byName = new Map(tools.map((t) => [t.name, t]));
 
   const server = new Server(
     {
       name: "vugola-mcp",
-      version: "1.1.4",
+      version: "1.2.0",
       title: "Vugola",
       icons: [
         {

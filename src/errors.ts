@@ -30,6 +30,8 @@ export function translateHttpError(status: number, body: unknown): string {
       return "Vugola took too long to respond. Try again shortly.";
     case 429:
       return "Vugola rate limit hit. Try again in about a minute.";
+    case 409:
+      return "This post can no longer be cancelled. It's already processing or has already posted.";
     case 400: {
       const canned = KNOWN_400_CODES[code];
       if (canned) return canned;

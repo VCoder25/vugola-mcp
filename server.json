@@ -6,12 +6,12 @@
     "url": "https://github.com/VCoder25/vugola-mcp",
     "source": "github"
   },
-  "version": "1.1.4",
+  "version": "1.2.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "vugola-mcp",
-      "version": "1.1.4",
+      "version": "1.2.0",
       "transport": {
         "type": "stdio"
       },

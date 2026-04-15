@@ -18,17 +18,17 @@ Let Claude (or any MCP-capable agent) clip videos, check your credits, and sched
 ### Claude Desktop (one command, auto-configures)
 
 ```bash
-npx vugola-mcp@1.1.4 install
+npx vugola-mcp@1.2.0 install
 ```
 
 npx will ask to install the package (type `y`), then the installer prompts for your API key. It edits your Claude Desktop config for you — no JSON to hand-write. **Quit and reopen Claude Desktop** to pick up the change.
 
-To skip the key prompt: `npx vugola-mcp@1.1.4 install --key vug_sk_yourkey`.
+To skip the key prompt: `npx vugola-mcp@1.2.0 install --key vug_sk_yourkey`.
 
 ### Claude Code
 
 ```bash
-claude mcp add vugola -- npx -y vugola-mcp@1.1.4
+claude mcp add vugola -- npx -y vugola-mcp@1.2.0
 ```
 
 Then export your key in your shell or `.env`:
@@ -46,7 +46,7 @@ If your MCP client isn't covered above, drop this block into its config file:
   "mcpServers": {
     "vugola": {
       "command": "npx",
-      "args": ["-y", "vugola-mcp@1.1.4"],
+      "args": ["-y", "vugola-mcp@1.2.0"],
       "env": { "VUGOLA_API_KEY": "vug_sk_your_key_here" }
     }
   }
@@ -79,9 +79,25 @@ No inputs.
 
 ### `schedule_post`
 
-Schedule one or more social posts. Supports x, instagram, tiktok, youtube, facebook, linkedin, threads, bluesky. Instagram carousels supported with 2–10 items.
+Schedule one or more social posts. Supports x, instagram, tiktok, youtube, facebook, linkedin, threads, bluesky.
 
 Inputs: `posts[]` (max 25 per call). See the tool description for full fields.
+
+### `list_scheduled_posts`
+
+List what's on your posting calendar. Optional filters for status (`scheduled` / `processing` / `posted` / `failed`), platform, limit, offset.
+
+### `cancel_scheduled_post`
+
+Cancel a scheduled post before it goes live. Only works for posts in `scheduled` state.
+
+Inputs: `post_id`.
+
+### `download_clip`
+
+Save a completed clip to your local `~/Downloads/` folder and return the file path. Call after `get_clip_status` reports a job is complete.
+
+Inputs: `job_id`, `clip_index` (1-based). Max 500 MB.
 
 ---
 
