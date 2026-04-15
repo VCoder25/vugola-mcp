@@ -19,7 +19,7 @@ const RATE_LIMIT_MSG =
   "You're calling Vugola too quickly. Wait a moment and try again.";
 
 const DOWNLOAD_NOTE =
-  "Download URLs require the same Authorization: Bearer header as other calls. They're valid for approximately 1 hour after completion — save clips promptly.";
+  "Download URLs are presigned — open them directly in a browser (no Authorization header needed). They expire roughly 1 hour after completion, so save clips promptly or call download_clip to pull them to local disk.";
 
 export function createGetClipStatusTool(deps: ToolDeps) {
   return {

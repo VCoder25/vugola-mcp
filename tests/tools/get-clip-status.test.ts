@@ -66,7 +66,7 @@ describe("get_clip_status", () => {
     expect(parsed.credits_used).toBe(8);
     expect(parsed.clips[0].title).toBe("Normal title");
     expect(parsed.clips[1].title).toBe("<content-suppressed: possible injection>");
-    expect(parsed.download_note).toMatch(/Bearer/);
+    expect(parsed.download_note).toMatch(/presigned/i);
     expect(parsed.download_note).toMatch(/1 hour/i);
   });
 
