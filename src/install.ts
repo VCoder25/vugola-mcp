@@ -21,7 +21,7 @@ interface McpConfig {
   [key: string]: unknown;
 }
 
-const VERSION = "1.1.3";
+const VERSION = "1.1.4";
 
 function configPathFor(client: SupportedClient): string {
   if (client !== "claude-desktop") {

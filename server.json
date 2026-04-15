@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.vcoder25/vugola-mcp",
+  "name": "io.github.VCoder25/vugola-mcp",
   "description": "Official Vugola MCP server - AI video clipping and multi-platform post scheduling.",
   "repository": {
     "url": "https://github.com/VCoder25/vugola-mcp",
     "source": "github"
   },
-  "version": "1.1.3",
+  "version": "1.1.4",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "vugola-mcp",
-      "version": "1.1.3",
+      "version": "1.1.4",
       "transport": {
         "type": "stdio"
       },
