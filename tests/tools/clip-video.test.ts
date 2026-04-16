@@ -108,6 +108,57 @@ describe("clip_video", () => {
     ).rejects.toThrow();
   });
 
+  it("accepts project_id and passes it through", async () => {
+    const client = fakeClient([
+      {
+        ok: true,
+        httpStatus: 202,
+        body: { job_id: "p1", status: "processing" },
+      },
+    ]);
+    const tool = createClipVideoTool({
+      client,
+      rateLimiter: createRateLimiter({}),
+    });
+    const res = await tool.handler({
+      project_id: "123e4567-e89b-12d3-a456-426614174000",
+      aspect_ratio: "9:16",
+      caption_style: "minimalist",
+    });
+    const parsed = JSON.parse(res.content[0].text);
+    expect(parsed.job_id).toBe("p1");
+  });
+
+  it("rejects when both video_url and project_id provided", async () => {
+    const client = fakeClient([]);
+    const tool = createClipVideoTool({
+      client,
+      rateLimiter: createRateLimiter({}),
+    });
+    await expect(
+      tool.handler({
+        video_url: "https://x.com/v",
+        project_id: "123e4567-e89b-12d3-a456-426614174000",
+        aspect_ratio: "9:16",
+        caption_style: "minimalist",
+      })
+    ).rejects.toThrow();
+  });
+
+  it("rejects when neither video_url nor project_id provided", async () => {
+    const client = fakeClient([]);
+    const tool = createClipVideoTool({
+      client,
+      rateLimiter: createRateLimiter({}),
+    });
+    await expect(
+      tool.handler({
+        aspect_ratio: "9:16",
+        caption_style: "minimalist",
+      } as never)
+    ).rejects.toThrow();
+  });
+
   it("enforces rate limit", async () => {
     const client = fakeClient([
       { ok: true, httpStatus: 202, body: { job_id: "1" } },

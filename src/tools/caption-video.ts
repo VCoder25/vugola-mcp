@@ -11,7 +11,8 @@ export interface ToolDeps {
 
 const InputSchema = z
   .object({
-    video_url: z.string().min(1).max(2048),
+    video_url: z.string().min(1).max(2048).optional(),
+    project_id: z.string().uuid().optional(),
     aspect_ratio: z.enum(["9:16", "16:9", "1:1"]),
     caption_style: z.enum([
       "none",
@@ -22,7 +23,11 @@ const InputSchema = z
     ]),
     caption_color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   })
-  .strict();
+  .strict()
+  .refine(
+    (v) => (v.video_url ? !v.project_id : !!v.project_id),
+    { message: "Provide exactly one of video_url or project_id." }
+  );
 
 const RATE_LIMIT_MSG =
   "You're calling Vugola too quickly. Wait a moment and try again.";
@@ -31,7 +36,7 @@ export function createCaptionVideoTool(deps: ToolDeps) {
   return {
     name: "caption_video",
     description:
-      "Add captions to a short video (up to 5 minutes). Ask the user for aspect_ratio and caption_style if they're not given. If the user says 'just pick,' default to aspect_ratio '9:16' and caption_style 'minimalist'. Jobs take 3-8 minutes; Vugola will email the user when done, and the agent can check status via get_clip_status.",
+      "Add captions to a short video (up to 5 minutes). Provide either video_url (YouTube link, direct MP4 URL) OR project_id (from a prior upload_video call). Ask the user for aspect_ratio and caption_style if they're not given. If the user says 'just pick,' default to aspect_ratio '9:16' and caption_style 'minimalist'. Jobs take 3-8 minutes; Vugola will email the user when done, and the agent can check status via get_clip_status.",
     inputSchema: InputSchema,
     async handler(input: z.infer<typeof InputSchema>) {
       InputSchema.parse(input);
@@ -41,10 +46,11 @@ export function createCaptionVideoTool(deps: ToolDeps) {
       }
       try {
         const body: Record<string, string> = {
-          video_url: input.video_url,
           aspect_ratio: input.aspect_ratio,
           caption_style: input.caption_style,
         };
+        if (input.video_url) body.video_url = input.video_url;
+        if (input.project_id) body.project_id = input.project_id;
         if (input.caption_color) {
           body.caption_color = input.caption_color;
         }
