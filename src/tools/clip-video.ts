@@ -11,7 +11,8 @@ export interface ToolDeps {
 
 const InputSchema = z
   .object({
-    video_url: z.string().min(1).max(2048),
+    video_url: z.string().min(1).max(2048).optional(),
+    project_id: z.string().uuid().optional(),
     aspect_ratio: z.enum(["9:16", "16:9", "1:1"]),
     caption_style: z.enum([
       "none",
@@ -21,7 +22,11 @@ const InputSchema = z
       "box",
     ]),
   })
-  .strict();
+  .strict()
+  .refine(
+    (v) => (v.video_url ? !v.project_id : !!v.project_id),
+    { message: "Provide exactly one of video_url or project_id." }
+  );
 
 const RATE_LIMIT_MSG =
   "You're calling Vugola too quickly. Wait a moment and try again.";
@@ -30,7 +35,7 @@ export function createClipVideoTool(deps: ToolDeps) {
   return {
     name: "clip_video",
     description:
-      "Start a video-clipping job. Ask the user for aspect_ratio and caption_style if they're not given. If the user says 'just pick,' default to aspect_ratio '9:16' and caption_style 'minimalist'. Videos must be 2–180 minutes long. Jobs take 10–30 minutes; Vugola will email the user when done, and the agent can check status via get_clip_status.",
+      "Start a video-clipping job. Provide either video_url (YouTube link, direct MP4 URL) OR project_id (from a prior upload_video call). Ask the user for aspect_ratio and caption_style if they're not given. If the user says 'just pick,' default to aspect_ratio '9:16' and caption_style 'minimalist'. Videos must be 2–180 minutes long. Jobs take 10–30 minutes; Vugola will email the user when done, and the agent can check status via get_clip_status.",
     inputSchema: InputSchema,
     async handler(input: z.infer<typeof InputSchema>) {
       InputSchema.parse(input);
@@ -39,13 +44,15 @@ export function createClipVideoTool(deps: ToolDeps) {
         return { content: [{ type: "text" as const, text: RATE_LIMIT_MSG }] };
       }
       try {
+        const body: Record<string, unknown> = {
+          aspect_ratio: input.aspect_ratio,
+          caption_style: input.caption_style,
+        };
+        if (input.video_url) body.video_url = input.video_url;
+        if (input.project_id) body.project_id = input.project_id;
         const res = await deps.client.request("/clip", {
           method: "POST",
-          body: {
-            video_url: input.video_url,
-            aspect_ratio: input.aspect_ratio,
-            caption_style: input.caption_style,
-          },
+          body,
           timeoutMs: 15_000,
           retryIdempotent: false, // explicit: POST /clip never retries
         });
@@ -59,8 +66,8 @@ export function createClipVideoTool(deps: ToolDeps) {
             ],
           };
         }
-        const body = res.body as { job_id?: unknown };
-        const jobId = sanitize(body.job_id, { maxLength: 64 });
+        const resBody = res.body as { job_id?: unknown };
+        const jobId = sanitize(resBody.job_id, { maxLength: 64 });
         const payload = {
           job_id: jobId,
           status: "processing" as const,
