@@ -18,17 +18,17 @@ Let Claude (or any MCP-capable agent) clip videos, check your credits, and sched
 ### Claude Desktop (one command, auto-configures)
 
 ```bash
-npx vugola-mcp@1.2.1 install
+npx vugola-mcp@1.3.0 install
 ```
 
 npx will ask to install the package (type `y`), then the installer prompts for your API key. It edits your Claude Desktop config for you — no JSON to hand-write. **Quit and reopen Claude Desktop** to pick up the change.
 
-To skip the key prompt: `npx vugola-mcp@1.2.1 install --key vug_sk_yourkey`.
+To skip the key prompt: `npx vugola-mcp@1.3.0 install --key vug_sk_yourkey`.
 
 ### Claude Code
 
 ```bash
-claude mcp add vugola -- npx -y vugola-mcp@1.2.1
+claude mcp add vugola -- npx -y vugola-mcp@1.3.0
 ```
 
 Then export your key in your shell or `.env`:
@@ -46,7 +46,7 @@ If your MCP client isn't covered above, drop this block into its config file:
   "mcpServers": {
     "vugola": {
       "command": "npx",
-      "args": ["-y", "vugola-mcp@1.2.1"],
+      "args": ["-y", "vugola-mcp@1.3.0"],
       "env": { "VUGOLA_API_KEY": "vug_sk_your_key_here" }
     }
   }
@@ -98,6 +98,12 @@ Inputs: `post_id`.
 Save a completed clip to your local `~/Downloads/` folder and return the file path. Call after `get_clip_status` reports a job is complete.
 
 Inputs: `job_id`, `clip_index` (1-based). Max 500 MB.
+
+### `caption_video`
+
+Add captions to a short video (up to 5 minutes). No clipping, no reframing — just captions burned on top of the source video at source quality.
+
+Inputs: `video_url`, `aspect_ratio` (`9:16` | `16:9` | `1:1`), `caption_style` (`none` | `highlighted` | `scale` | `minimalist` | `box`). Optional: `caption_color` (hex).
 
 ---
 

@@ -16,6 +16,7 @@ import { createSchedulePostTool } from "./tools/schedule-post.js";
 import { createListScheduledPostsTool } from "./tools/list-scheduled-posts.js";
 import { createCancelScheduledPostTool } from "./tools/cancel-scheduled-post.js";
 import { createDownloadClipTool } from "./tools/download-clip.js";
+import { createCaptionVideoTool } from "./tools/caption-video.js";
 import { runInstall } from "./install.js";
 
 const VUGOLA_BASE_URL = "https://www.vugolaai.com/api/v1";
@@ -45,6 +46,7 @@ async function main() {
   });
   const rateLimiter = createRateLimiter({
     clip_video: { max: 5, windowMs: 60_000 },
+    caption_video: { max: 5, windowMs: 60_000 },
     schedule_post: { max: 10, windowMs: 60_000 },
     get_clip_status: { max: 30, windowMs: 60_000 },
     get_usage: { max: 30, windowMs: 60_000 },
@@ -65,13 +67,14 @@ async function main() {
       rateLimiter,
       baseUrl: VUGOLA_BASE_URL,
     }),
+    createCaptionVideoTool({ client, rateLimiter }),
   ];
   const byName = new Map(tools.map((t) => [t.name, t]));
 
   const server = new Server(
     {
       name: "vugola-mcp",
-      version: "1.2.1",
+      version: "1.3.0",
       title: "Vugola",
       icons: [
         {

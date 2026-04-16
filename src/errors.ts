@@ -9,6 +9,8 @@ const KNOWN_400_CODES: Record<string, string> = {
   invalid_aspect_ratio: "aspect_ratio must be one of: 9:16, 16:9, 1:1.",
   invalid_caption_style:
     "caption_style must be one of: none, highlighted, scale, minimalist, box.",
+  no_speech_detected:
+    "No speech detected in this video. Captions require spoken audio. Credits have been refunded.",
 };
 
 export function translateHttpError(status: number, body: unknown): string {
