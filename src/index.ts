@@ -17,6 +17,14 @@ import { createListScheduledPostsTool } from "./tools/list-scheduled-posts.js";
 import { createCancelScheduledPostTool } from "./tools/cancel-scheduled-post.js";
 import { createDownloadClipTool } from "./tools/download-clip.js";
 import { createCaptionVideoTool } from "./tools/caption-video.js";
+import { createCreateWebhookTool } from "./tools/webhooks/create-webhook.js";
+import { createListWebhooksTool } from "./tools/webhooks/list-webhooks.js";
+import { createGetWebhookTool } from "./tools/webhooks/get-webhook.js";
+import { createUpdateWebhookTool } from "./tools/webhooks/update-webhook.js";
+import { createRotateWebhookSecretTool } from "./tools/webhooks/rotate-webhook-secret.js";
+import { createDeleteWebhookTool } from "./tools/webhooks/delete-webhook.js";
+import { createTestWebhookTool } from "./tools/webhooks/test-webhook.js";
+import { createListWebhookDeliveriesTool } from "./tools/webhooks/list-webhook-deliveries.js";
 import { runInstall } from "./install.js";
 
 const VUGOLA_BASE_URL = "https://www.vugolaai.com/api/v1";
@@ -53,6 +61,14 @@ async function main() {
     list_scheduled_posts: { max: 30, windowMs: 60_000 },
     cancel_scheduled_post: { max: 10, windowMs: 60_000 },
     download_clip: { max: 10, windowMs: 60_000 },
+    create_webhook: { max: 5, windowMs: 60_000 },
+    list_webhooks: { max: 5, windowMs: 60_000 },
+    get_webhook: { max: 5, windowMs: 60_000 },
+    update_webhook: { max: 5, windowMs: 60_000 },
+    rotate_webhook_secret: { max: 5, windowMs: 60_000 },
+    delete_webhook: { max: 5, windowMs: 60_000 },
+    test_webhook: { max: 5, windowMs: 60_000 },
+    list_webhook_deliveries: { max: 5, windowMs: 60_000 },
   });
 
   const tools = [
@@ -68,13 +84,21 @@ async function main() {
       baseUrl: VUGOLA_BASE_URL,
     }),
     createCaptionVideoTool({ client, rateLimiter }),
+    createCreateWebhookTool({ client, rateLimiter }),
+    createListWebhooksTool({ client, rateLimiter }),
+    createGetWebhookTool({ client, rateLimiter }),
+    createUpdateWebhookTool({ client, rateLimiter }),
+    createRotateWebhookSecretTool({ client, rateLimiter }),
+    createDeleteWebhookTool({ client, rateLimiter }),
+    createTestWebhookTool({ client, rateLimiter }),
+    createListWebhookDeliveriesTool({ client, rateLimiter }),
   ];
   const byName = new Map(tools.map((t) => [t.name, t]));
 
   const server = new Server(
     {
       name: "vugola-mcp",
-      version: "1.3.0",
+      version: "1.5.0",
       title: "Vugola",
       icons: [
         {
