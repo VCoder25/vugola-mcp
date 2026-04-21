@@ -5,7 +5,7 @@ export interface ClientConfig {
 }
 
 export interface RequestOptions {
-  method: "GET" | "POST" | "DELETE";
+  method: "GET" | "POST" | "DELETE" | "PATCH";
   body?: unknown;
   timeoutMs: number;
   retryIdempotent: boolean;
