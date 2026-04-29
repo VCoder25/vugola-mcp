@@ -1,3 +1,5 @@
+import { CAPTION_STYLE_OPTIONS } from "./caption-styles.js";
+
 const DASHBOARD = "https://www.vugolaai.com/dashboard/api-key";
 const PRICING = "https://www.vugolaai.com/pricing";
 
@@ -7,8 +9,7 @@ const KNOWN_400_CODES: Record<string, string> = {
   invalid_url: "That video URL isn't supported.",
   missing_fields: "Vugola rejected the request. A required field was missing.",
   invalid_aspect_ratio: "aspect_ratio must be one of: 9:16, 16:9, 1:1.",
-  invalid_caption_style:
-    "caption_style must be one of: none, highlighted, scale, minimalist, box.",
+  invalid_caption_style: `caption_style must be one of: ${CAPTION_STYLE_OPTIONS}.`,
   no_speech_detected:
     "No speech detected in this video. Captions require spoken audio. Credits have been refunded.",
 };
