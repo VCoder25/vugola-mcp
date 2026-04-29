@@ -34,6 +34,8 @@ describe("translateHttpError", () => {
       .toMatch(/3 hours or shorter/i);
     expect(translateHttpError(400, { error: "invalid_url" }))
       .toMatch(/URL isn't supported/i);
+    expect(translateHttpError(400, { error: "invalid_caption_style" }))
+      .toMatch(/glow.*hormozi|hormozi.*glow/i);
   });
 
   it("400 with unknown error code → generic canned message (NO raw passthrough)", () => {

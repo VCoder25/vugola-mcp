@@ -3,6 +3,7 @@ import type { Client } from "../client.js";
 import type { RateLimiter } from "../rate-limit.js";
 import { sanitize } from "../sanitize.js";
 import { translateHttpError, translateNetworkError } from "../errors.js";
+import { CAPTION_STYLES } from "../caption-styles.js";
 
 export interface ToolDeps {
   client: Client;
@@ -13,13 +14,7 @@ const InputSchema = z
   .object({
     video_url: z.string().min(1).max(2048),
     aspect_ratio: z.enum(["9:16", "16:9", "1:1"]),
-    caption_style: z.enum([
-      "none",
-      "highlighted",
-      "scale",
-      "minimalist",
-      "box",
-    ]),
+    caption_style: z.enum(CAPTION_STYLES),
   })
   .strict();
 

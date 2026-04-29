@@ -43,6 +43,27 @@ describe("clip_video", () => {
     expect(parsed.next_action_hint).toMatch(/get_clip_status/);
   });
 
+  it("accepts newer public caption styles", async () => {
+    const client = fakeClient([
+      {
+        ok: true,
+        httpStatus: 202,
+        body: { job_id: "glow-job", status: "processing" },
+      },
+    ]);
+    const tool = createClipVideoTool({
+      client,
+      rateLimiter: createRateLimiter({}),
+    });
+    const res = await tool.handler({
+      video_url: "https://www.youtube.com/watch?v=xyz",
+      aspect_ratio: "9:16",
+      caption_style: "glow",
+    });
+    const parsed = JSON.parse(res.content[0].text);
+    expect(parsed.job_id).toBe("glow-job");
+  });
+
   it("returns 402 canned message on out-of-credits", async () => {
     const client = fakeClient([
       { ok: false, httpStatus: 402, body: {} },
