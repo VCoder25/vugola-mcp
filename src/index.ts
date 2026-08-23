@@ -74,12 +74,12 @@ async function main() {
   const server = new Server(
     {
       name: "vugola-mcp",
-      version: "1.3.1",
+      version: "1.4.0",
       title: "Vugola",
       icons: [
         {
-          src: "https://www.vugolaai.com/favicon.ico",
-          mimeType: "image/x-icon",
+          src: "https://www.vugolaai.com/favicon.png",
+          mimeType: "image/png",
         },
       ],
     } as unknown as { name: string; version: string },

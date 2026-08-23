@@ -1,0 +1,23 @@
+{
+  "name": "vugola",
+  "version": "1.4.0",
+  "description": "Clip long videos, burn captions, and schedule posts from chat. Uses the live Vugola MCP.",
+  "author": {
+    "name": "Vugola LLC",
+    "email": "vadim@vugolaai.com"
+  },
+  "homepage": "https://www.vugolaai.com/mcp",
+  "repository": "https://github.com/VCoder25/vugola-mcp",
+  "license": "MIT",
+  "keywords": [
+    "vugola",
+    "video",
+    "clipping",
+    "captions",
+    "mcp",
+    "shorts"
+  ],
+  "logo": "assets/logo.png",
+  "mcpServers": "./mcp.json",
+  "skills": "./skills"
+}
