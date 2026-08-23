@@ -14,11 +14,13 @@ const InputSchema = z
     video_url: z.string().min(1).max(2048),
     aspect_ratio: z.enum(["9:16", "16:9", "1:1"]),
     caption_style: z.enum([
-      "none",
       "highlighted",
       "scale",
       "minimalist",
       "box",
+      "staticbox",
+      "glow",
+      "hormozi",
     ]),
     caption_color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   })

@@ -19,6 +19,9 @@ const InputSchema = z
       "scale",
       "minimalist",
       "box",
+      "staticbox",
+      "glow",
+      "hormozi",
     ]),
   })
   .strict();
@@ -30,7 +33,7 @@ export function createClipVideoTool(deps: ToolDeps) {
   return {
     name: "clip_video",
     description:
-      "Start a video-clipping job. Ask the user for aspect_ratio and caption_style if they're not given. If the user says 'just pick,' default to aspect_ratio '9:16' and caption_style 'minimalist'. Videos must be 2–180 minutes long. Jobs take 10–30 minutes; Vugola will email the user when done, and the agent can check status via get_clip_status.",
+      "Start a video-clipping job. Ask the user for aspect_ratio and caption_style if they're not given. If the user says 'just pick,' default to aspect_ratio '9:16' and caption_style 'highlighted'. Jobs take 10–30 minutes; Vugola will email the user when done, and the agent can check status via get_clip_status.",
     inputSchema: InputSchema,
     async handler(input: z.infer<typeof InputSchema>) {
       InputSchema.parse(input);

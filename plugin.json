@@ -1,0 +1,25 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "vugola",
+  "version": "1.4.0",
+  "description": "Clip long videos, burn captions, and schedule posts from chat. Connects to the live Vugola MCP at vugolaai.com.",
+  "author": {
+    "name": "Vugola LLC",
+    "email": "vadim@vugolaai.com",
+    "url": "https://www.vugolaai.com"
+  },
+  "homepage": "https://www.vugolaai.com/mcp",
+  "repository": "https://github.com/VCoder25/vugola-mcp",
+  "license": "MIT",
+  "keywords": [
+    "vugola",
+    "video",
+    "clipping",
+    "captions",
+    "mcp",
+    "shorts",
+    "reels",
+    "tiktok",
+    "youtube"
+  ]
+}

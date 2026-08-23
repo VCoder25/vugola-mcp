@@ -1,134 +1,99 @@
-# vugola-mcp
+# Vugola MCP
 
-Official MCP server for [Vugola](https://www.vugolaai.com) — the AI video clipping tool.
+Official [Vugola](https://www.vugolaai.com) connector for Cursor, Grok Bot, Claude, ChatGPT, and any MCP client.
 
-Let Claude (or any MCP-capable agent) clip videos, check your credits, and schedule posts on your Vugola account.
+This repo is the public plugin Cursor Marketplace and Grok Bot install. It points at the **live hosted MCP** every Vugola customer can use:
+
+`https://www.vugolaai.com/api/mcp`
+
+Sign in with your Vugola account. No API key for Cursor / Grok Bot / Claude / ChatGPT.
+
+Connecting is free. Clipping uses your Vugola credits. A $1 3-day trial is enough to start. Every paid plan includes MCP access.
+
+Guide: [vugolaai.com/mcp](https://www.vugolaai.com/mcp)
 
 ---
 
-## Requires
+## Install (Cursor and Grok Bot)
 
-- Node.js 20 or higher.
-- A paid Vugola account. Generate a key at [vugolaai.com/dashboard/api-key](https://www.vugolaai.com/dashboard/api-key).
+1. Install this plugin from the Cursor Marketplace, or add the repo in a team marketplace.
+2. Click **Add** / **Connect**.
+3. Sign in at Vugola and click **Allow**.
+4. In Grok Bot, type `@` and attach Vugola. Then ask it to clip a video.
 
----
-
-## Install
-
-### Claude Desktop (one command, auto-configures)
-
-```bash
-npx vugola-mcp@1.3.0 install
-```
-
-npx will ask to install the package (type `y`), then the installer prompts for your API key. It edits your Claude Desktop config for you — no JSON to hand-write. **Quit and reopen Claude Desktop** to pick up the change.
-
-To skip the key prompt: `npx vugola-mcp@1.3.0 install --key vug_sk_yourkey`.
-
-### Claude Code
-
-```bash
-claude mcp add vugola -- npx -y vugola-mcp@1.3.0
-```
-
-Then export your key in your shell or `.env`:
-
-```bash
-export VUGOLA_API_KEY=vug_sk_your_key_here
-```
-
-### Cursor / Cline / manual
-
-If your MCP client isn't covered above, drop this block into its config file:
+Manual remote URL if you are not using the plugin yet:
 
 ```json
 {
   "mcpServers": {
     "vugola": {
-      "command": "npx",
-      "args": ["-y", "vugola-mcp@1.3.0"],
-      "env": { "VUGOLA_API_KEY": "vug_sk_your_key_here" }
+      "url": "https://www.vugolaai.com/api/mcp"
     }
   }
 }
 ```
 
-**Always pin the version** (`vugola-mcp@1.1.0`) — never install `latest`.
+---
+
+## What you can do
+
+These tools run on the signed-in user's workspace. They are not an admin view.
+
+| Tool | What it does |
+| --- | --- |
+| `clip_video` | Turn a long public video into short clips |
+| `caption_video` | Burn captions on a video up to 5 minutes |
+| `get_clip_status` | Check a job |
+| `download_clip` | Fresh download links for finished clips |
+| `get_usage` | Credits and plan |
+| `schedule_post` | Schedule a post |
+| `list_scheduled_posts` | See the calendar |
+| `cancel_scheduled_post` | Cancel a scheduled post |
+
+**Sizes:** `9:16`, `16:9`, `1:1`
+
+**Caption styles:** `none` (clip only), `highlighted`, `scale`, `minimalist`, `box`, `staticbox`, `glow`, `hormozi`
+
+**Schedule live now:** TikTok, YouTube, X, LinkedIn, Bluesky. Instagram, Facebook, and Threads are temporarily unavailable.
 
 ---
 
-## Tools
+## Local npm server (optional)
 
-### `clip_video`
+For Claude Desktop / Claude Code on your machine, you can still run the stdio server with an API key from [your dashboard](https://www.vugolaai.com/dashboard/api-key):
 
-Start a clipping job. Takes 10–30 minutes. Vugola emails you when it's done.
+```bash
+npx vugola-mcp@1.4.0 install
+```
 
-Inputs: `video_url`, `aspect_ratio` (`9:16` | `16:9` | `1:1`), `caption_style` (`none` | `highlighted` | `scale` | `minimalist` | `box`).
+```bash
+claude mcp add vugola -- npx -y vugola-mcp@1.4.0
+export VUGOLA_API_KEY=vug_sk_your_key_here
+```
 
-### `get_clip_status`
+Always pin the version. Never install `latest`.
 
-Check a running job. Agent calls this when you ask "is that clip done?"
-
-Inputs: `job_id`.
-
-### `get_usage`
-
-Show credits remaining, monthly usage, and plan.
-
-No inputs.
-
-### `schedule_post`
-
-Schedule one or more social posts. Supports x, instagram, tiktok, youtube, facebook, linkedin, threads, bluesky.
-
-Inputs: `posts[]` (max 25 per call). See the tool description for full fields.
-
-### `list_scheduled_posts`
-
-List what's on your posting calendar. Optional filters for status (`scheduled` / `processing` / `posted` / `failed`), platform, limit, offset.
-
-### `cancel_scheduled_post`
-
-Cancel a scheduled post before it goes live. Only works for posts in `scheduled` state.
-
-Inputs: `post_id`.
-
-### `download_clip`
-
-Save a completed clip to your local `~/Downloads/` folder and return the file path. Call after `get_clip_status` reports a job is complete.
-
-Inputs: `job_id`, `clip_index` (1-based). Max 500 MB.
-
-### `caption_video`
-
-Add captions to a short video (up to 5 minutes). No clipping, no reframing — just captions burned on top of the source video at source quality.
-
-Inputs: `video_url`, `aspect_ratio` (`9:16` | `16:9` | `1:1`), `caption_style` (`none` | `highlighted` | `scale` | `minimalist` | `box`). Optional: `caption_color` (hex).
+Grok Bot cannot run this local server. Use the hosted URL above.
 
 ---
 
 ## Security
 
-- **Never commit your `VUGOLA_API_KEY`.** Your agent's config file contains a secret. Add it to `.gitignore`, or use a secrets manager (1Password CLI, direnv) instead of inline env vars.
-- **Always pin the version** (`vugola-mcp@1.0.0`) in your install. Don't install "latest."
-- If you accidentally leak your key, regenerate it at [vugolaai.com/dashboard/api-key](https://www.vugolaai.com/dashboard/api-key) immediately.
-- Download URLs returned by `get_clip_status` require the same `Authorization: Bearer <key>` header and expire in ~1 hour. Save clips promptly or re-fetch the status before downloading.
-
----
-
-## Pricing
-
-This MCP requires a paid Vugola account (Creator plan or above). See [pricing](https://www.vugolaai.com/pricing).
+- Hosted connector: OAuth only. Do not put a `vug_sk_` key in the plugin repo.
+- Local server: never commit `VUGOLA_API_KEY`. If a key leaks, regenerate it in the dashboard.
+- Download links expire. Re-fetch status if a link dies.
 
 ---
 
 ## Links
 
-- Vugola: https://www.vugolaai.com
-- Dashboard: https://www.vugolaai.com/dashboard/api-key
+- Product: https://www.vugolaai.com
+- MCP guide: https://www.vugolaai.com/mcp
+- Pricing: https://www.vugolaai.com/pricing
+- Samples: https://www.vugolaai.com/samples
 
 ---
 
 ## License
 
-MIT © 2026 Vadim Strizheus
+MIT © 2026 Vugola LLC
