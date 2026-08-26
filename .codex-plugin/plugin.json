@@ -1,0 +1,45 @@
+{
+  "name": "vugola",
+  "version": "1.4.0",
+  "description": "Turn long videos into captioned short clips, schedule social posts, and manage channel automations from ChatGPT and Codex.",
+  "author": {
+    "name": "Vugola LLC",
+    "email": "vadim@vugolaai.com",
+    "url": "https://www.vugolaai.com"
+  },
+  "homepage": "https://www.vugolaai.com/mcp",
+  "repository": "https://github.com/VCoder25/vugola-mcp",
+  "license": "MIT",
+  "keywords": [
+    "video",
+    "clipping",
+    "captions",
+    "social-media",
+    "automation"
+  ],
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Vugola",
+    "shortDescription": "Clip, caption, and automate",
+    "longDescription": "Use your Vugola workspace from ChatGPT and Codex to turn public video links into captioned short clips, check rendering progress, retrieve downloads, schedule social posts, and manage hands-free YouTube channel automations.",
+    "developerName": "Vugola LLC",
+    "category": "Creativity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://www.vugolaai.com/mcp",
+    "supportURL": "https://www.vugolaai.com/contact",
+    "privacyPolicyURL": "https://www.vugolaai.com/privacy-policy",
+    "termsOfServiceURL": "https://www.vugolaai.com/terms-of-service",
+    "defaultPrompt": [
+      "Turn this interview into five vertical clips with captions: <video URL>",
+      "Add highlighted captions to this video: <video URL>",
+      "Set up an automation for this YouTube channel after confirming the destinations and schedule"
+    ],
+    "brandColor": "#2563EB",
+    "composerIcon": "./assets/logo.png",
+    "logo": "./assets/logo.png",
+    "screenshots": []
+  }
+}
