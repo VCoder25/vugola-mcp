@@ -1,8 +1,8 @@
 # Vugola MCP
 
-Official [Vugola](https://www.vugolaai.com) connector for Cursor, Grok Bot, Claude, ChatGPT, and any MCP client.
+Official [Vugola](https://www.vugolaai.com) connector and plugin package for ChatGPT, Codex, Cursor, Grok Bot, Claude, and any MCP client.
 
-This repo is the public plugin Cursor Marketplace and Grok Bot install. It points at the **live hosted MCP** every Vugola customer can use:
+This repo contains the OpenAI plugin package, Cursor Marketplace package, and hosted MCP definition. Every surface points at the same **live hosted MCP** every Vugola customer can use:
 
 `https://www.vugolaai.com/api/mcp`
 
@@ -11,6 +11,19 @@ Sign in with your Vugola account. No API key for Cursor / Grok Bot / Claude / Ch
 Connecting is free. Clipping uses your Vugola credits. A $1 3-day trial is enough to start. Every paid plan includes MCP access.
 
 Guide: [vugolaai.com/mcp](https://www.vugolaai.com/mcp)
+
+---
+
+## Install (ChatGPT and Codex)
+
+The public Vugola listing is submitted through OpenAI's Plugins Directory. Until it is approved, test the production MCP in ChatGPT Developer mode:
+
+1. Turn on **Developer mode** under **Settings → Security and login**.
+2. Open **Plugins**, click **+**, and add an MCP server named **Vugola**.
+3. Enter `https://www.vugolaai.com/api/mcp`, then click **Scan Tools**.
+4. Sign in at Vugola, create the plugin, and test it in a new chat.
+
+The OpenAI package lives at `.codex-plugin/plugin.json` and uses `.mcp.json`. A platform-issued `.app.json` is added only after OpenAI registers the MCP connection; this repository never fabricates or publishes a placeholder app ID.
 
 ---
 
@@ -42,13 +55,20 @@ These tools run on the signed-in user's workspace. They are not an admin view.
 | Tool | What it does |
 | --- | --- |
 | `clip_video` | Turn a long public video into short clips |
-| `caption_video` | Burn captions on a video up to 5 minutes |
+| `caption_video` | Burn captions on a video up to 20 minutes |
 | `get_clip_status` | Check a job |
 | `download_clip` | Fresh download links for finished clips |
 | `get_usage` | Credits and plan |
 | `schedule_post` | Schedule a post |
 | `list_scheduled_posts` | See the calendar |
 | `cancel_scheduled_post` | Cancel a scheduled post |
+| `list_automation_destinations` | List connected accounts available to Automations |
+| `resolve_automation_channel` | Resolve a YouTube channel before setup |
+| `create_automation` | Watch a channel, clip new uploads, and schedule the clips |
+| `list_automations` / `get_automation` | Review Automations and recent runs |
+| `update_automation` | Change destinations, output, captions, or posting times |
+| `pause_automation` / `resume_automation` | Control channel monitoring |
+| `delete_automation` | Permanently delete an Automation and cancel pending posts |
 
 **Sizes:** `9:16`, `16:9`, `1:1`
 
@@ -63,11 +83,11 @@ These tools run on the signed-in user's workspace. They are not an admin view.
 For Claude Desktop / Claude Code on your machine, you can still run the stdio server with an API key from [your dashboard](https://www.vugolaai.com/dashboard/api-key):
 
 ```bash
-npx vugola-mcp@1.4.0 install
+npx vugola-mcp@1.3.1 install
 ```
 
 ```bash
-claude mcp add vugola -- npx -y vugola-mcp@1.4.0
+claude mcp add vugola -- npx -y vugola-mcp@1.3.1
 export VUGOLA_API_KEY=vug_sk_your_key_here
 ```
 
