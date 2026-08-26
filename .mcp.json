@@ -1,9 +1,7 @@
 {
-  "mcpServers": {
-    "vugola": {
-      "type": "http",
-      "url": "https://www.vugolaai.com/api/mcp",
-      "oauth_resource": "https://www.vugolaai.com/api/mcp"
-    }
+  "vugola": {
+    "type": "http",
+    "url": "https://www.vugolaai.com/api/mcp",
+    "oauth_resource": "https://www.vugolaai.com/api/mcp"
   }
 }
