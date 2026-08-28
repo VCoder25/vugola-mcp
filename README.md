@@ -29,6 +29,33 @@ OpenAI's plugin bundle is distributed from this public repository. The optional 
 
 ---
 
+## Install (Claude Code and Cowork)
+
+The Claude plugin package lives at `.claude-plugin/plugin.json`. It bundles the Vugola skill with the live OAuth tools, so users sign in to Vugola instead of pasting an API key.
+
+Once this version is on the public repository, it can be added before directory approval from Claude's Plugins screen: choose **Add**, choose **Add from a repository**, and enter `VCoder25/vugola-mcp`.
+
+Claude Code users can add the same repository marketplace directly:
+
+```bash
+claude plugin marketplace add VCoder25/vugola-mcp
+claude plugin install vugola@vugola-plugins
+```
+
+To validate and test the package from a local checkout:
+
+```bash
+claude plugin validate --strict .
+claude plugin validate --strict .claude-plugin/marketplace.json
+claude --plugin-dir .
+```
+
+The package is intended for Claude's Plugin Directory, the same discovery surface used by plugins such as Postiz. It adds the Vugola workflow skill and Vugola's authenticated tools in Cowork and Claude Code.
+
+Use `assets/logo.png` for the Claude listing icon. It is the approved 512×512 transparent **Vugola Product Mark** with the blue agent character. Do not substitute the compressed export, social portrait, wordmark, or character-world banner.
+
+---
+
 ## Install (Cursor and Grok Bot)
 
 1. Install this plugin from the Cursor Marketplace, or add the repo in a team marketplace.

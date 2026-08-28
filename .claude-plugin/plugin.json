@@ -1,0 +1,24 @@
+{
+  "name": "vugola",
+  "displayName": "Vugola",
+  "version": "1.4.0",
+  "description": "Turn long videos into short clips, add burned-in captions, download finished media, schedule social posts, and manage YouTube channel automations with Vugola.",
+  "author": {
+    "name": "Vugola LLC",
+    "email": "vadim@vugolaai.com",
+    "url": "https://www.vugolaai.com"
+  },
+  "homepage": "https://www.vugolaai.com/mcp",
+  "repository": "https://github.com/VCoder25/vugola-mcp",
+  "license": "MIT",
+  "keywords": [
+    "vugola",
+    "video",
+    "clipping",
+    "captions",
+    "shorts",
+    "social-media"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./claude.mcp.json"
+}

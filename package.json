@@ -2,7 +2,7 @@
   "name": "vugola-mcp",
   "version": "1.4.0",
   "mcpName": "io.github.VCoder25/vugola-mcp",
-  "description": "Official Vugola MCP — clip videos, burn captions, and schedule posts from any MCP client.",
+  "description": "Official Vugola MCP for clipping videos, burning captions, and scheduling posts from any MCP client.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -35,7 +35,7 @@
     "@types/node": "^20.11.0",
     "tsx": "^4.7.0",
     "typescript": "^5.4.0",
-    "vitest": "^1.4.0"
+    "vitest": "^4.1.11"
   },
   "keywords": [
     "mcp",
