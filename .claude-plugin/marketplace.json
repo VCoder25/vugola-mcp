@@ -1,0 +1,35 @@
+{
+  "name": "vugola-plugins",
+  "owner": {
+    "name": "Vugola LLC",
+    "email": "support@vugolaai.com",
+    "url": "https://www.vugolaai.com"
+  },
+  "description": "Official Claude plugins from Vugola.",
+  "plugins": [
+    {
+      "name": "vugola",
+      "displayName": "Vugola",
+      "source": "./",
+      "description": "Turn long videos into short clips, add burned-in captions, download finished media, schedule social posts, and manage YouTube channel automations with Vugola.",
+      "version": "1.4.0",
+      "author": {
+        "name": "Vugola LLC",
+        "email": "support@vugolaai.com",
+        "url": "https://www.vugolaai.com"
+      },
+      "homepage": "https://www.vugolaai.com/mcp",
+      "repository": "https://github.com/VCoder25/vugola-mcp",
+      "license": "MIT",
+      "category": "Marketing",
+      "tags": [
+        "video",
+        "clipping",
+        "captions",
+        "social-media",
+        "automation"
+      ],
+      "strict": true
+    }
+  ]
+}

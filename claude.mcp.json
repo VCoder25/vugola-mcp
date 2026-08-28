@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "vugola": {
+      "type": "http",
+      "url": "https://www.vugolaai.com/api/mcp"
+    }
+  }
+}
