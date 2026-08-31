@@ -8,7 +8,7 @@ This repo contains the OpenAI plugin package, Cursor Marketplace package, and ho
 
 Sign in with your Vugola account. No API key for Cursor / Grok Bot / Claude / ChatGPT.
 
-Connecting is free. Clipping uses your Vugola credits. A $1 3-day trial is enough to start. Every paid plan includes MCP access.
+MCP access is included with every active paid Vugola plan. Clipping uses your Vugola credits.
 
 Guide: [vugolaai.com/mcp](https://www.vugolaai.com/mcp)
 

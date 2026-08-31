@@ -27,7 +27,7 @@
       "environmentVariables": [
         {
           "name": "VUGOLA_API_KEY",
-          "description": "Your Vugola API key (prefix vug_sk_). Get one at https://www.vugolaai.com/dashboard/api-key. Requires a paid Vugola plan or the $1 trial.",
+          "description": "Your Vugola API key (prefix vug_sk_). Get one at https://www.vugolaai.com/dashboard/api-key. Requires an active paid Vugola plan.",
           "isRequired": true,
           "isSecret": true,
           "format": "string"

@@ -4,9 +4,10 @@ import { describe, expect, it } from 'vitest';
 
 const root = resolve(import.meta.dirname, '..');
 const manifest = JSON.parse(readFileSync(resolve(root, 'server.json'), 'utf8'));
+const readme = readFileSync(resolve(root, 'README.md'), 'utf8');
 
 describe('official MCP Registry manifest', () => {
-  it('keeps the hosted OAuth server as the primary no-key connection', () => {
+  it('keeps the hosted OAuth server as the no-key connection', () => {
     expect(manifest.title).toBe('Vugola');
     expect(manifest.websiteUrl).toBe('https://www.vugolaai.com/mcp');
     expect(manifest.remotes).toEqual([
@@ -42,5 +43,12 @@ describe('official MCP Registry manifest', () => {
         isSecret: true,
       }),
     ]);
+    expect(manifest.packages[0].environmentVariables[0].description).toContain('active paid Vugola plan');
+    expect(manifest.packages[0].environmentVariables[0].description).not.toMatch(/trial/i);
+  });
+
+  it('keeps public MCP access guidance aligned with the paid-plan gate', () => {
+    expect(readme).toContain('MCP access is included with every active paid Vugola plan');
+    expect(readme).not.toMatch(/\$1|3-day trial/i);
   });
 });
