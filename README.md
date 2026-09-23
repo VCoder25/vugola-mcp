@@ -16,7 +16,7 @@ Guide: [vugolaai.com/mcp](https://www.vugolaai.com/mcp)
 
 ## Install (ChatGPT and Codex)
 
-The public Vugola listing will be submitted through OpenAI's Plugins Directory. Until it is approved, test the production MCP in ChatGPT Developer mode:
+The public Vugola listing has been submitted through OpenAI's Plugins Directory and is in review. Until it is approved, test the production MCP in ChatGPT Developer mode:
 
 1. Turn on **Developer mode** under **Settings → Security and login**.
 2. Open **Plugins**, click **+**, and add an MCP server named **Vugola**.
