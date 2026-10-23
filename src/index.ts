@@ -5,7 +5,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import { z } from "zod";
 
 import { createClient } from "./client.js";
 import { createRateLimiter } from "./rate-limit.js";
@@ -94,7 +94,7 @@ async function main() {
       const base: Record<string, unknown> = {
         name: t.name,
         description: t.description,
-        inputSchema: zodToJsonSchema(t.inputSchema) as Record<string, unknown>,
+        inputSchema: z.toJSONSchema(t.inputSchema, { target: "draft-07", io: "input" }) as Record<string, unknown>,
       };
       if (withAnnotations.annotations) {
         base["annotations"] = withAnnotations.annotations;

@@ -1,0 +1,67 @@
+name: MCP validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: e1ee0abad59d11949151c650847a7b240c5d3dd2
+          path: baseline
+          persist-credentials: false
+      - name: Verify the reviewed baseline fails the data-preservation regressions
+        working-directory: baseline
+        shell: bash
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          cp ../tests/sanitize.test.ts tests/sanitize.test.ts
+          cp ../tests/tools/get-clip-status.test.ts tests/tools/get-clip-status.test.ts
+          cp ../tests/tools/list-scheduled-posts.test.ts tests/tools/list-scheduled-posts.test.ts
+          status=0
+          npm test -- tests/sanitize.test.ts tests/tools/get-clip-status.test.ts tests/tools/list-scheduled-posts.test.ts --reporter=json --outputFile=baseline-results.json || status=$?
+          test "$status" -eq 1
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { readFileSync } from 'node:fs';
+          const result = JSON.parse(readFileSync('baseline-results.json', 'utf8'));
+          const failed = result.testResults.flatMap((suite) => suite.assertionResults)
+            .filter((test) => test.status === 'failed');
+          const expected = [
+            'preserves legitimate words and directive-like content as data',
+            'round-trips markup, quotes and control characters through JSON without structural injection',
+            'preserves every signed URL byte',
+            'returns complete payload with source titles preserved as JSON data',
+            'preserves source captions as JSON data without dropping the post',
+          ];
+          assert.equal(failed.length, expected.length, 'Only the five reviewed behavior assertions may fail');
+          for (const title of expected) {
+            const test = failed.find((failure) => failure.title === title);
+            assert.ok(test, `Missing concrete baseline failure: ${title}`);
+            assert.ok(test.failureMessages.some((message) => message.includes('AssertionError')));
+          }
+          console.log('Baseline proof: all five expected data-preservation assertions failed.');
+          JS
+      - run: npm run build
+      - run: npm test
+      - run: npm audit --audit-level=low
