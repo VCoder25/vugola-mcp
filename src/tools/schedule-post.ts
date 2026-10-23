@@ -39,7 +39,7 @@ const PostSchema = z
       .min(2)
       .max(10)
       .optional(),
-    platform_settings: z.record(z.unknown()).optional(),
+    platform_settings: z.record(z.string(), z.unknown()).optional(),
   })
   .strict()
   .refine(
