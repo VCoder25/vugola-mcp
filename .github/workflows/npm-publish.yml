@@ -1,0 +1,234 @@
+name: Publish MCP to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      reviewed_sha:
+        description: Exact reviewed main commit (40-character SHA)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+env:
+  REVIEWED_SHA: ${{ inputs.reviewed_sha }}
+  NPM_CONFIG_REGISTRY: https://registry.npmjs.org
+
+jobs:
+  build:
+    if: github.repository == 'VCoder25/vugola-mcp' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+      integrity: ${{ steps.pack.outputs.integrity }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Require the exact reviewed main revision
+        shell: bash
+        run: |
+          [[ "$REVIEWED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_SHA" = "$REVIEWED_SHA"
+          test "$(git rev-parse HEAD)" = "$REVIEWED_SHA"
+          test "$(git ls-remote https://github.com/VCoder25/vugola-mcp.git refs/heads/main | cut -f1)" = "$REVIEWED_SHA"
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run build
+      - run: npm test
+      - run: npm audit --audit-level=low
+      - name: Pack and inspect the release artifact
+        id: pack
+        shell: bash
+        run: |
+          mkdir release
+          npm pack --ignore-scripts --json --pack-destination release > release/pack.json
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { createHash } from 'node:crypto';
+          import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+          const [pack] = JSON.parse(readFileSync('release/pack.json', 'utf8'));
+          assert.equal(pack.name, 'vugola-mcp');
+          assert.equal(pack.version, '1.4.0');
+          assert.equal(pack.filename, 'vugola-mcp-1.4.0.tgz');
+          const paths = pack.files.map(file => file.path);
+          for (const required of ['package.json', 'README.md', 'LICENSE', 'dist/index.js', 'dist/install-bin.js']) {
+            assert.ok(paths.includes(required), `Missing ${required}`);
+          }
+          assert.ok(paths.every(path => /^(package\.json|README\.md|LICENSE|dist\/[^.][^\\]*)$/.test(path) && !path.split('/').includes('..')));
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          assert.equal(pkg.repository.url, 'https://github.com/VCoder25/vugola-mcp.git');
+          for (const bin of Object.values(pkg.bin)) {
+            assert.ok(paths.includes(bin));
+            assert.ok(readFileSync(bin, 'utf8').startsWith('#!/usr/bin/env node\n'));
+          }
+          const integrity = 'sha512-' + createHash('sha512').update(readFileSync(`release/${pack.filename}`)).digest('base64');
+          assert.equal(integrity, pack.integrity);
+          writeFileSync('release/release.json', JSON.stringify({ sha: process.env.REVIEWED_SHA, integrity, pack }, null, 2) + '\n');
+          appendFileSync(process.env.GITHUB_OUTPUT, `integrity=${integrity}\n`);
+          JS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: upload
+        with:
+          name: npm-${{ github.sha }}
+          path: release/
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    needs: build
+    if: github.repository == 'VCoder25/vugola-mcp' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: npm-production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      EXPECTED_INTEGRITY: ${{ needs.build.outputs.integrity }}
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Use the verified npm version with OIDC dist-tag support
+        run: npm install --global npm@11.21.1 --ignore-scripts --no-audit --no-fund
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact_id }}
+          path: release
+          merge-multiple: true
+      - name: Verify artifact identity and inspect publication state
+        id: publication
+        shell: bash
+        run: |
+          test "$(npm --version)" = 11.21.1
+          [[ "$REVIEWED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_SHA" = "$REVIEWED_SHA"
+          test "$(git ls-remote https://github.com/VCoder25/vugola-mcp.git refs/heads/main | cut -f1)" = "$REVIEWED_SHA"
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { createHash } from 'node:crypto';
+          import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+          const release = JSON.parse(readFileSync('release/release.json', 'utf8'));
+          assert.equal(release.sha, process.env.REVIEWED_SHA);
+          assert.equal(release.integrity, process.env.EXPECTED_INTEGRITY);
+          const integrity = 'sha512-' + createHash('sha512').update(readFileSync('release/vugola-mcp-1.4.0.tgz')).digest('base64');
+          assert.equal(integrity, process.env.EXPECTED_INTEGRITY);
+          const options = { signal: AbortSignal.timeout(30000), redirect: 'error' };
+          const existing = await fetch('https://registry.npmjs.org/vugola-mcp/1.4.0', options);
+          assert.ok(existing.status === 200 || existing.status === 404, `Unexpected version status ${existing.status}`);
+          const published = existing.status === 200;
+          const response = await fetch('https://registry.npmjs.org/-/package/vugola-mcp/dist-tags', options);
+          assert.ok(response.ok, `Registry status ${response.status}`);
+          const tags = await response.json();
+          assert.ok(tags.latest === '1.3.1' || (published && tags.latest === '1.4.0'), 'Unexpected latest version');
+          assert.ok(!tags['rollback-20261023'] || tags['rollback-20261023'] === '1.3.1');
+          assert.ok(!tags['security-20261023'] || (published && tags['security-20261023'] === '1.4.0'), 'Unexpected candidate tag');
+          writeFileSync('release/before-tags.json', JSON.stringify(tags, null, 2) + '\n');
+          appendFileSync(process.env.GITHUB_OUTPUT, `published=${published}\n`);
+          JS
+      - name: Publish the checked tarball with provenance, without moving latest
+        if: steps.publication.outputs.published == 'false'
+        run: npm publish ./release/vugola-mcp-1.4.0.tgz --ignore-scripts --provenance --access public --tag security-20261023
+      - name: Verify public bytes and authenticated source provenance before promotion
+        shell: bash
+        run: |
+          NPM_GLOBAL_ROOT="$(npm root --global)" node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { createHash } from 'node:crypto';
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { createRequire } from 'node:module';
+          const npmRequire = createRequire(`${process.env.NPM_GLOBAL_ROOT}/npm/package.json`);
+          const { verify } = createRequire(npmRequire.resolve('pacote'))('sigstore');
+          const get = async url => {
+            assert.equal(new URL(url).origin, 'https://registry.npmjs.org');
+            const response = await fetch(url, { signal: AbortSignal.timeout(30000), redirect: 'error' });
+            assert.ok(response.ok, `Registry status ${response.status}`);
+            return response;
+          };
+          const metadata = await (await get('https://registry.npmjs.org/vugola-mcp/1.4.0')).json();
+          assert.equal(metadata.name, 'vugola-mcp');
+          assert.equal(metadata.version, '1.4.0');
+          assert.equal(metadata.dist.integrity, process.env.EXPECTED_INTEGRITY);
+          const publicBytes = Buffer.from(await (await get(metadata.dist.tarball)).arrayBuffer());
+          assert.deepEqual(publicBytes, readFileSync('release/vugola-mcp-1.4.0.tgz'));
+          const attestations = await (await get(metadata.dist.attestations.url)).json();
+          const attestation = attestations.attestations.find(item => item.predicateType === 'https://slsa.dev/provenance/v1');
+          assert.ok(attestation, 'Missing SLSA provenance');
+          await verify(attestation.bundle, {
+            certificateIssuer: 'https://token.actions.githubusercontent.com',
+            certificateIdentityURI: 'https://github.com/VCoder25/vugola-mcp/.github/workflows/npm-publish.yml@refs/heads/main',
+          });
+          const statement = JSON.parse(Buffer.from(attestation.bundle.dsseEnvelope.payload, 'base64').toString('utf8'));
+          assert.equal(statement.predicateType, 'https://slsa.dev/provenance/v1');
+          const definition = statement.predicate.buildDefinition;
+          assert.equal(definition.externalParameters.workflow.repository, 'https://github.com/VCoder25/vugola-mcp');
+          assert.equal(definition.externalParameters.workflow.path, '.github/workflows/npm-publish.yml');
+          assert.equal(definition.externalParameters.workflow.ref, 'refs/heads/main');
+          assert.ok(definition.resolvedDependencies.some(dependency => dependency.uri === 'git+https://github.com/VCoder25/vugola-mcp@refs/heads/main' && dependency.digest.gitCommit === process.env.REVIEWED_SHA));
+          assert.equal(statement.predicate.runDetails.builder.id, 'https://github.com/actions/runner/github-hosted');
+          assert.match(statement.predicate.runDetails.metadata.invocationId, /^https:\/\/github\.com\/VCoder25\/vugola-mcp\/actions\/runs\/[1-9][0-9]*\/attempts\/[1-9][0-9]*$/);
+          assert.ok(statement.subject.some(subject => subject.digest.sha512 === createHash('sha512').update(publicBytes).digest('hex')));
+          const tags = await (await get('https://registry.npmjs.org/-/package/vugola-mcp/dist-tags')).json();
+          assert.ok(['1.3.1', '1.4.0'].includes(tags.latest), 'Unexpected latest version');
+          assert.ok(!tags['security-20261023'] || tags['security-20261023'] === '1.4.0');
+          assert.ok(!tags['rollback-20261023'] || tags['rollback-20261023'] === '1.3.1');
+          writeFileSync('release/published-metadata.json', JSON.stringify(metadata, null, 2) + '\n');
+          writeFileSync('release/published-attestations.json', JSON.stringify(attestations, null, 2) + '\n');
+          JS
+          test "$(git ls-remote https://github.com/VCoder25/vugola-mcp.git refs/heads/main | cut -f1)" = "$REVIEWED_SHA"
+      - name: Verify registry signatures and attestations without executing package code
+        shell: bash
+        run: |
+          verification_dir="$RUNNER_TEMP/npm-signature-verification"
+          mkdir "$verification_dir"
+          printf '{"private":true}\n' > "$verification_dir/package.json"
+          npm install --prefix "$verification_dir" --ignore-scripts --no-audit --no-fund --save-exact vugola-mcp@1.4.0
+          npm audit signatures --prefix "$verification_dir" | tee release/signature-verification.txt
+      - name: Promote the verified security release
+        shell: bash
+        run: |
+          test "$(git ls-remote https://github.com/VCoder25/vugola-mcp.git refs/heads/main | cut -f1)" = "$REVIEWED_SHA"
+          npm view vugola-mcp dist-tags --json > release/promotion-tags.json
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const tags = JSON.parse(readFileSync('release/promotion-tags.json', 'utf8'));
+          assert.ok(['1.3.1', '1.4.0'].includes(tags.latest), 'Unexpected latest version');
+          assert.ok(!tags['security-20261023'] || tags['security-20261023'] === '1.4.0');
+          assert.ok(!tags['rollback-20261023'] || tags['rollback-20261023'] === '1.3.1');
+          writeFileSync('release/promote-latest', String(tags.latest === '1.3.1'));
+          JS
+          npm dist-tag add vugola-mcp@1.3.1 rollback-20261023
+          npm dist-tag add vugola-mcp@1.4.0 security-20261023
+          if test "$(cat release/promote-latest)" = true; then
+            npm dist-tag add vugola-mcp@1.4.0 latest
+          fi
+          npm view vugola-mcp dist-tags --json > release/after-tags.json
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { appendFileSync, readFileSync } from 'node:fs';
+          const tags = JSON.parse(readFileSync('release/after-tags.json', 'utf8'));
+          assert.equal(tags.latest, '1.4.0');
+          assert.equal(tags['security-20261023'], '1.4.0');
+          assert.equal(tags['rollback-20261023'], '1.3.1');
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, `Published vugola-mcp@1.4.0 from ${process.env.REVIEWED_SHA}; tarball and provenance matched before latest promotion.\n\nRollback label: rollback-20261023 points to 1.3.1, which lacks this release's security fixes. Do not restore it automatically.\n`);
+          JS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: npm-release-receipt-${{ github.sha }}-${{ github.run_attempt }}
+          path: release/
+          if-no-files-found: error
+          retention-days: 30
