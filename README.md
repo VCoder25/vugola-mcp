@@ -112,11 +112,11 @@ These tools run on the signed-in user's workspace. They are not an admin view.
 For Claude Desktop / Claude Code on your machine, you can still run the stdio server with an API key from [your dashboard](https://www.vugolaai.com/dashboard/api-key):
 
 ```bash
-npx vugola-mcp@1.3.1 install
+npx vugola-mcp@1.4.0 install
 ```
 
 ```bash
-claude mcp add vugola -- npx -y vugola-mcp@1.3.1
+claude mcp add vugola -- npx -y vugola-mcp@1.4.0
 export VUGOLA_API_KEY=vug_sk_your_key_here
 ```
 
