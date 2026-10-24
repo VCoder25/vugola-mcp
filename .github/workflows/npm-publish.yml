@@ -52,6 +52,7 @@ jobs:
         shell: bash
         run: |
           mkdir release
+          cp scripts/npm-registry-readback.mjs release/npm-registry-readback.mjs
           npm pack --ignore-scripts --json --pack-destination release > release/pack.json
           node --input-type=module <<'JS'
           import assert from 'node:assert/strict';
@@ -120,18 +121,25 @@ jobs:
           import assert from 'node:assert/strict';
           import { createHash } from 'node:crypto';
           import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+          import { fetchRegistry, assertReleaseTags } from './release/npm-registry-readback.mjs';
           const release = JSON.parse(readFileSync('release/release.json', 'utf8'));
           assert.equal(release.sha, process.env.REVIEWED_SHA);
           assert.equal(release.integrity, process.env.EXPECTED_INTEGRITY);
           const integrity = 'sha512-' + createHash('sha512').update(readFileSync('release/vugola-mcp-1.4.0.tgz')).digest('base64');
           assert.equal(integrity, process.env.EXPECTED_INTEGRITY);
-          const options = { signal: AbortSignal.timeout(30000), redirect: 'error' };
-          const existing = await fetch('https://registry.npmjs.org/vugola-mcp/1.4.0', options);
+          const existing = await fetchRegistry('https://registry.npmjs.org/vugola-mcp/1.4.0');
           assert.ok(existing.status === 200 || existing.status === 404, `Unexpected version status ${existing.status}`);
           const published = existing.status === 200;
-          const response = await fetch('https://registry.npmjs.org/-/package/vugola-mcp/dist-tags', options);
+          if (published) {
+            const metadata = await existing.json();
+            assert.equal(metadata.name, 'vugola-mcp');
+            assert.equal(metadata.version, '1.4.0');
+            assert.equal(metadata.dist.integrity, process.env.EXPECTED_INTEGRITY);
+          }
+          const response = await fetchRegistry('https://registry.npmjs.org/-/package/vugola-mcp/dist-tags');
           assert.ok(response.ok, `Registry status ${response.status}`);
           const tags = await response.json();
+          assertReleaseTags(tags);
           assert.ok(tags.latest === '1.3.1' || (published && tags.latest === '1.4.0'), 'Unexpected latest version');
           assert.ok(!tags['rollback-20261023'] || tags['rollback-20261023'] === '1.3.1');
           assert.ok(!tags['security-20261023'] || (published && tags['security-20261023'] === '1.4.0'), 'Unexpected candidate tag');
@@ -149,15 +157,16 @@ jobs:
           import { createHash } from 'node:crypto';
           import { readFileSync, writeFileSync } from 'node:fs';
           import { createRequire } from 'node:module';
+          import { fetchRegistry, waitForReleaseVersion, assertReleaseTags } from './release/npm-registry-readback.mjs';
           const npmRequire = createRequire(`${process.env.NPM_GLOBAL_ROOT}/npm/package.json`);
           const { verify } = createRequire(npmRequire.resolve('pacote'))('sigstore');
           const get = async url => {
             assert.equal(new URL(url).origin, 'https://registry.npmjs.org');
-            const response = await fetch(url, { signal: AbortSignal.timeout(30000), redirect: 'error' });
+            const response = await fetchRegistry(url);
             assert.ok(response.ok, `Registry status ${response.status}`);
             return response;
           };
-          const metadata = await (await get('https://registry.npmjs.org/vugola-mcp/1.4.0')).json();
+          const metadata = await waitForReleaseVersion(process.env.EXPECTED_INTEGRITY);
           assert.equal(metadata.name, 'vugola-mcp');
           assert.equal(metadata.version, '1.4.0');
           assert.equal(metadata.dist.integrity, process.env.EXPECTED_INTEGRITY);
@@ -181,6 +190,7 @@ jobs:
           assert.match(statement.predicate.runDetails.metadata.invocationId, /^https:\/\/github\.com\/VCoder25\/vugola-mcp\/actions\/runs\/[1-9][0-9]*\/attempts\/[1-9][0-9]*$/);
           assert.ok(statement.subject.some(subject => subject.digest.sha512 === createHash('sha512').update(publicBytes).digest('hex')));
           const tags = await (await get('https://registry.npmjs.org/-/package/vugola-mcp/dist-tags')).json();
+          assertReleaseTags(tags);
           assert.ok(['1.3.1', '1.4.0'].includes(tags.latest), 'Unexpected latest version');
           assert.ok(!tags['security-20261023'] || tags['security-20261023'] === '1.4.0');
           assert.ok(!tags['rollback-20261023'] || tags['rollback-20261023'] === '1.3.1');
@@ -200,11 +210,12 @@ jobs:
         shell: bash
         run: |
           test "$(git ls-remote https://github.com/VCoder25/vugola-mcp.git refs/heads/main | cut -f1)" = "$REVIEWED_SHA"
-          npm view vugola-mcp dist-tags --json > release/promotion-tags.json
           node --input-type=module <<'JS'
           import assert from 'node:assert/strict';
-          import { readFileSync, writeFileSync } from 'node:fs';
-          const tags = JSON.parse(readFileSync('release/promotion-tags.json', 'utf8'));
+          import { writeFileSync } from 'node:fs';
+          import { readReleaseTags } from './release/npm-registry-readback.mjs';
+          const tags = await readReleaseTags();
+          writeFileSync('release/promotion-tags.json', JSON.stringify(tags, null, 2) + '\n');
           assert.ok(['1.3.1', '1.4.0'].includes(tags.latest), 'Unexpected latest version');
           assert.ok(!tags['security-20261023'] || tags['security-20261023'] === '1.4.0');
           assert.ok(!tags['rollback-20261023'] || tags['rollback-20261023'] === '1.3.1');
@@ -215,11 +226,12 @@ jobs:
           if test "$(cat release/promote-latest)" = true; then
             npm dist-tag add vugola-mcp@1.4.0 latest
           fi
-          npm view vugola-mcp dist-tags --json > release/after-tags.json
           node --input-type=module <<'JS'
           import assert from 'node:assert/strict';
-          import { appendFileSync, readFileSync } from 'node:fs';
-          const tags = JSON.parse(readFileSync('release/after-tags.json', 'utf8'));
+          import { appendFileSync, writeFileSync } from 'node:fs';
+          import { waitForReleaseTags } from './release/npm-registry-readback.mjs';
+          const tags = await waitForReleaseTags();
+          writeFileSync('release/after-tags.json', JSON.stringify(tags, null, 2) + '\n');
           assert.equal(tags.latest, '1.4.0');
           assert.equal(tags['security-20261023'], '1.4.0');
           assert.equal(tags['rollback-20261023'], '1.3.1');
